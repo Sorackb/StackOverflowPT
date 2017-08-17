@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
@@ -23,6 +25,26 @@ import org.json.JSONObject;
  */
 public class JSON2XLS {
 
+  public static void transformar(String array, String caminho) {
+    JSON2XLS.transformar(new JSONArray(array), caminho);
+  }
+
+  public static void transformar(JSONArray array, String caminho) {
+    Set<String> campos = new HashSet<>();
+
+    for (Object objeto : array) {
+      JSONObject linha = (JSONObject) objeto;
+
+      campos.addAll(linha.keySet());
+    }
+
+    JSON2XLS.transformar(new LinkedList<>(campos), array, caminho);
+  }
+
+  public static void transformar(List<String> campos, String array, String caminho) {
+    JSON2XLS.transformar(campos, new JSONArray(array), caminho);
+  }
+
   public static void transformar(List<String> campos, JSONArray array, String caminho) {
     SXSSFWorkbook xls = new SXSSFWorkbook(50);
     Sheet aba = xls.createSheet();
@@ -31,9 +53,9 @@ public class JSON2XLS {
 
     JSON2XLS.criarCabecalho(campos, aba);
 
-    for (int indice = 0; indice < array.length(); indice++) {
+    for (int indice = 1; indice <= array.length(); indice++) {
       List<Object> celulas = new ArrayList();
-      JSONObject objeto = array.getJSONObject(indice);
+      JSONObject objeto = array.getJSONObject(indice - 1);
 
       campos.forEach((campo) -> {
         if (objeto.has(campo)) {
@@ -91,18 +113,22 @@ public class JSON2XLS {
 
     for (int indice = 0; indice < celulas.size(); indice++) {
       Object celula = celulas.get(indice);
+      Class classe = celula.getClass();
 
-      linha.createCell(indice).setCellValue(String.valueOf(celula));
+      if (classe.isAssignableFrom(Integer.class) || classe.isAssignableFrom(int.class)
+              || classe.isAssignableFrom(Double.class) || classe.isAssignableFrom(double.class)) {
+        linha.createCell(indice).setCellValue(new Double(String.valueOf(celula)));
+      } else if (classe.isAssignableFrom(Boolean.class) || classe.isAssignableFrom(boolean.class)) {
+        linha.createCell(indice).setCellValue(Boolean.valueOf(String.valueOf(celula)));
+      } else {
+        linha.createCell(indice).setCellValue(String.valueOf(celula));
+      }
     }
   }
 
   public static void main(String[] args) {
-    String json = "[{\"codigo\": 1, \"nome\": \"José\"}, {\"codigo\": 2, \"nome\": \"João\"}]";
-    List<String> campos = new LinkedList<>();
+    String json = "[{\"codigo\": 1, \"nome\": \"José\", \"aprovado\": false}, {\"codigo\": 2, \"nome\": \"João\", \"aprovado\": true}]";
 
-    campos.add("codigo");
-    campos.add("nome");
-
-    JSON2XLS.transformar(campos, new JSONArray(json), "C:/D/teste/teste.xls");
+    JSON2XLS.transformar(new JSONArray(json), "C:/D/teste/teste.xlsx");
   }
 }
