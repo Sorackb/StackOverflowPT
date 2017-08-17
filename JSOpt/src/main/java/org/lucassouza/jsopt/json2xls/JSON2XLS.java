@@ -125,10 +125,4 @@ public class JSON2XLS {
       }
     }
   }
-
-  public static void main(String[] args) {
-    String json = "[{\"codigo\": 1, \"nome\": \"José\", \"aprovado\": false}, {\"codigo\": 2, \"nome\": \"João\", \"aprovado\": true}]";
-
-    JSON2XLS.transformar(new JSONArray(json), "C:/D/teste/teste.xlsx");
-  }
 }
