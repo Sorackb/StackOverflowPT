@@ -51,7 +51,7 @@ BEGIN TRY
       FROM dias d
      WHERE d.dia < '2017.06.30'
   )
-  SELECT CONVERT(VARCHAR, d.dia, 103) AS data_cancelado,
+  SELECT CONVERT(VARCHAR, d.dia, 103) AS data,
          COUNT(CASE WHEN s.soltipid = 35 THEN 1 ELSE NULL END) AS abertos,
          COUNT(CASE WHEN s.solestagioid = 110 THEN 1 ELSE NULL END) AS cancelados
     FROM dias d
