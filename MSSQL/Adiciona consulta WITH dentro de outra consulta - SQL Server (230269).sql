@@ -11,35 +11,37 @@ CREATE TABLE solicitacao (
   solid             INT IDENTITY,
   soldatafechamento VARCHAR(10),
   proid             INT,
-  solestagioid      INT
+  solestagioid      INT,
+  soltipid          INT
 );
 
 INSERT INTO solicitacao(soldatafechamento,
                         proid,
-                        solestagioid)
-VALUES('26-06-2017', 3, 110),
-      ('26-06-2017', 4, 112),
-      ('27-06-2017', 4, 110),
-      ('27-06-2017', 1, 110),
-      ('27-06-2017', 4, 110),
-      ('27-06-2017', 4, 110),
-      ('27-06-2017', 4, 110),
-      ('27-06-2017', 4, 35),
-      ('27-06-2017', 4, 35),
-      ('28-06-2017', 4, 35),
-      ('28-06-2017', 4, 35),
-      ('28-06-2017', 4, 35),
-      ('28-06-2017', 4, 35),
-      ('28-06-2017', 4, 35),
-      ('29-06-2017', 4, 110),
-      ('29-06-2017', 4, 110),
-      ('29-06-2017', 4, 35),
-      ('29-06-2017', 4, 35),
-      ('29-06-2017', 4, 35),
-      ('29-06-2017', 4, 35),
-      ('29-06-2017', 4, 110),
-      ('29-06-2017', 4, 110),
-      ('29-06-2017', 4, 110);
+                        solestagioid,
+                        soltipid)
+VALUES('26-06-2017', 3, 110, NULL),
+      ('26-06-2017', 4, 112, NULL),
+      ('27-06-2017', 4, 110, NULL),
+      ('27-06-2017', 1, 110, NULL),
+      ('27-06-2017', 4, 110, NULL),
+      ('27-06-2017', 4, 110, NULL),
+      ('27-06-2017', 4, 110, NULL),
+      ('27-06-2017', 4, NULL, 35),
+      ('27-06-2017', 4, NULL, 35),
+      ('28-06-2017', 4, NULL, 35),
+      ('28-06-2017', 4, NULL, 35),
+      ('28-06-2017', 4, NULL, 35),
+      ('28-06-2017', 4, NULL, 35),
+      ('28-06-2017', 4, NULL, 35),
+      ('29-06-2017', 4, 110, NULL),
+      ('29-06-2017', 4, 110, NULL),
+      ('29-06-2017', 4, NULL, 35),
+      ('29-06-2017', 4, NULL, 35),
+      ('29-06-2017', 4, NULL, 35),
+      ('29-06-2017', 4, NULL, 35),
+      ('29-06-2017', 4, 110, NULL),
+      ('29-06-2017', 4, 110, NULL),
+      ('29-06-2017', 4, 110, NULL);
 
 BEGIN TRY
    WITH dias AS(
@@ -50,7 +52,7 @@ BEGIN TRY
      WHERE d.dia < '2017-06-30'
   )
   SELECT CONVERT(VARCHAR, d.dia, 103) AS data_cancelado,
-         COUNT(CASE WHEN s.proid = 4 AND s.solestagioid = 35 THEN 1 ELSE NULL END) AS abertos,
+         COUNT(CASE WHEN s.proid = 4 AND s.soltipid = 35 THEN 1 ELSE NULL END) AS abertos,
          COUNT(CASE WHEN s.proid = 4 AND s.solestagioid = 110 THEN 1 ELSE NULL END) AS cancelados
     FROM dias d
          LEFT JOIN solicitacao s ON CONVERT(DATE, s.soldatafechamento, 103) = d.dia
