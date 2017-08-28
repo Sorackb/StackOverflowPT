@@ -3,6 +3,7 @@
  * https://pt.stackoverflow.com/a/232824/59479
  */
 
+-- Estrutura de tabelas
 CREATE TABLE contrato (id    INT NOT NULL IDENTITY,
                        nome  VARCHAR(150),
                        ativo BIT
@@ -17,6 +18,7 @@ CREATE TABLE dbo.itemcontrato (id         INT NOT NULL IDENTITY,
 ALTER TABLE dbo.itemcontrato ADD FOREIGN KEY(contratoid) REFERENCES dbo.contrato(id);
 GO
 
+-- TRIGGER para a tabela ItemContrato
 IF OBJECT_ID('tgr_itemcontrato_ai', 'TR') IS NULL
 BEGIN
   EXEC('CREATE TRIGGER tgr_itemcontrato_ai ON ItemContrato FOR INSERT AS BEGIN SELECT 1 END');
@@ -38,6 +40,7 @@ BEGIN
 END;
 GO
 
+-- TRIGGER para a tabela Contrato
 IF OBJECT_ID('tgr_contrato_aiu', 'TR') IS NULL
 BEGIN
   EXEC('CREATE TRIGGER tgr_contrato_aiu ON Contrato FOR INSERT, UPDATE AS BEGIN SELECT 1 END');
@@ -77,12 +80,12 @@ BEGIN
      -- Garante que exista a coluna "Ativo" na tabela filha
      AND EXISTS(SELECT 1
                   FROM sys.columns cf WITH(NOLOCK)
-                 WHERE cf.name = 'ATIVO'
-                   AND cf.object_id = fkc.parent_object_id);
+                 WHERE cf.object_id = fkc.parent_object_id
+                   AND cf.name = 'ATIVO');
 
   IF @query IS NOT NULL
   BEGIN
-    PRINT @query;
+    -- PRINT @query;
     EXEC(@query);
   END;
 END;
@@ -90,20 +93,39 @@ GO
 
 SET NOCOUNT ON;
 
-INSERT Contrato VALUES('X', 1),
-                      ('Y', 1),
-                      ('Z', 0);
+DECLARE @ultimo_codigo INT;
 
-INSERT ItemContrato VALUES(1, 'A', NULL),
-                          (1, 'B', NULL),
-                          (1, 'C', NULL),
-                          (2, 'D', NULL),
-                          (2, 'E', NULL),
-                          (2, 'F', NULL),
-                          (2, 'G', NULL),
-                          (3, 'H', NULL),
-                          (3, 'I', NULL),
-                          (3, 'J', NULL);
+-- Inserção dos dados para teste
+-- Contrato "X"
+INSERT INTO Contrato(nome, ativo)
+              VALUES('X', 1);
+SET @ultimo_codigo = SCOPE_IDENTITY();
+
+INSERT INTO ItemContrato(contratoid, nome)
+                  VALUES(@ultimo_codigo, 'A'),
+                        (@ultimo_codigo, 'B'),
+                        (@ultimo_codigo, 'C');
+
+-- Contrato "Y"
+INSERT INTO Contrato(nome, ativo)
+              VALUES('Y', 1);
+SET @ultimo_codigo = SCOPE_IDENTITY();
+
+INSERT INTO ItemContrato(contratoid, nome)
+                  VALUES(@ultimo_codigo, 'D'),
+                        (@ultimo_codigo, 'E'),
+                        (@ultimo_codigo, 'F'),
+                        (@ultimo_codigo, 'G');
+
+-- Contrato "Z"
+INSERT INTO Contrato(nome, ativo)
+              VALUES('Z', 0);
+SET @ultimo_codigo = SCOPE_IDENTITY();
+
+INSERT INTO ItemContrato(contratoid, nome)
+                  VALUES(@ultimo_codigo, 'H'),
+                        (@ultimo_codigo, 'I'),
+                        (@ultimo_codigo, 'J');
 
 -- Antes da atualização
 SELECT c.*
